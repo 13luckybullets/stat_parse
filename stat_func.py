@@ -106,17 +106,3 @@ def run(file_path):
         counter += 1
 
     wb.save(file_path)
-
-# FILE_PATH = input('input path to file: ')
-# print(" +++ start +++")
-# print(FILE_PATH)
-# print(" +++ end +++")
-# input('press any key to exit')
-
-#if __name__ == "__main__":
-    # FILE_PATH = input('input path to file: ')
-#    print(" +++ start +++")
-    # print(FILE_PATH)
-#    run(FILE_PATH)
-#    print(" +++ end +++")
-#    input('press any key to exit')

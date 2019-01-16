@@ -2,15 +2,7 @@ import sys
 from PyQt5.QtWidgets import (QMainWindow, QTextEdit,
     QAction, QFileDialog, QApplication)
 from PyQt5.QtGui import QIcon
-import stat_func
-import output_logger
-
-
-OUTPUT_LOGGER_STDOUT = output_logger.OutputLogger(sys.stdout, output_logger.OutputLogger.Severity.DEBUG)
-OUTPUT_LOGGER_STDERR = output_logger.OutputLogger(sys.stderr, output_logger.OutputLogger.Severity.ERROR)
-
-sys.stdout = OUTPUT_LOGGER_STDOUT
-sys.stderr = OUTPUT_LOGGER_STDERR
+from stat_func import *
 
 
 class Example(QMainWindow):
@@ -40,17 +32,39 @@ class Example(QMainWindow):
         self.show()
 
     def showDialog(self):
-        fname = QFileDialog.getOpenFileName(self, 'Open file', '/thome')[0]
-        stat_func.run(fname)
-        self.textEdit.setText(fname)
+        file_path = QFileDialog.getOpenFileName(self, 'Open file', '/thome')[0]
+        wb = load_workbook(file_path)
+        sheets = wb.worksheets
+        team_from_columns = [3, 4]
 
-        #
-    #     f = open(fname, 'r')
-    #
-    #     with f:
-    #         data = f.read()
-    #         self.textEdit.setText(data)
+        all_sheets_count = len(sheets)
+        counter = 1
+        self.textEdit.setText("Run!")
+        print("RUN!")
 
+        for sheet in sheets:
+            self.textEdit.append("Processed sheet - %s, from %s" % (counter, all_sheets_count))
+            print("Processed sheet - %s, from %s" % (counter, all_sheets_count))
+
+            check_sheet = check_headers(sheet)
+            max_column = sheet.max_column
+
+            if not check_sheet:
+                prepare_sheet(sheet, max_column)
+            elif check_sheet:
+                max_column = max_column - 38
+
+            for row_num in range(sheet.max_row, 1, -1):
+                for team in team_from_columns:
+                    take_data(sheet, row_num, team)
+
+            write_data(max_column, sheet)
+            SHEET_DATA.clear()
+            counter += 1
+
+        wb.save(file_path)
+        self.textEdit.append("Successfully processed")
+        print("Done")
 
 if __name__ == '__main__':
 
