@@ -47,20 +47,18 @@ class Example(QMainWindow):
             print("Processed sheet - %s, from %s" % (counter, all_sheets_count))
 
             check_sheet = check_headers(sheet)
-            max_column = sheet.max_column
 
             if not check_sheet:
-                prepare_sheet(sheet, max_column)
-            elif check_sheet:
-                max_column = max_column - 38
+                prepare_sheet(sheet)
 
             for row_num in range(sheet.max_row, 1, -1):
                 for team in team_from_columns:
                     take_data(sheet, row_num, team)
 
-            write_data(max_column, sheet)
+            write_data(sheet)
             SHEET_DATA.clear()
             counter += 1
+            break
 
         wb.save(file_path)
         self.textEdit.append("Successfully processed")

@@ -1,6 +1,7 @@
 #coding:utf-8
 
 from openpyxl import load_workbook
+from openpyxl.utils import column_index_from_string
 from openpyxl.styles.borders import Border, Side
 
 
@@ -9,6 +10,7 @@ from openpyxl.styles.borders import Border, Side
 #FILE_PATH = r'D:\py_projects\serega\test.xlsx'
 SHEET_DATA = {}
 COLUMN_NAMES = ['H_S', 'H_M', 'A_S', 'A_M']
+DA_INDEX = column_index_from_string('DA')
 
 
 def check_headers(sheet):
@@ -18,8 +20,8 @@ def check_headers(sheet):
     return False
 
 
-def prepare_sheet(sheet, max_column):
-    column = max_column + 11
+def prepare_sheet(sheet):
+    column = DA_INDEX
 
     for name in COLUMN_NAMES:
         for i in range(1, 8, 1):
@@ -30,7 +32,13 @@ def prepare_sheet(sheet, max_column):
 def take_data(sheet, row_num, team):
     name = sheet.cell(row=row_num, column=team).value
     data = {'score': [], 'missed': []}
+    first = True
+
     for j in range(row_num, 1, -1):
+        # if name == sheet.cell(row=j, column=3).value and first:
+        #     first = False
+        #     continue
+
         if name == sheet.cell(row=j, column=3).value:
             data['score'].append(sheet.cell(row=j, column=5).value)
             data['missed'].append(sheet.cell(row=j, column=6).value)
@@ -38,11 +46,13 @@ def take_data(sheet, row_num, team):
         elif name == sheet.cell(row=j, column=4).value:
             data['score'].append(sheet.cell(row=j, column=6).value)
             data['missed'].append(sheet.cell(row=j, column=5).value)
-        if len(data['score']) == 7:
+
+        elif len(data['score']) == 7:
             SHEET_DATA.update({
                 tuple((row_num, team)): data
             })
             break
+
     if data['score']:
         SHEET_DATA.update({
             tuple((row_num, team)): data
@@ -54,16 +64,16 @@ def set_border(sheet, row_num, column):
         left=Side(style='medium'))
 
 
-def write_data(max_column, sheet):
+def write_data(sheet):
     for val in SHEET_DATA:
         data = SHEET_DATA.get(val)
         team = val[1]
         row_num = val[0]
 
         if team == 3:
-            column_score = max_column + 11
+            column_score = DA_INDEX
         else:
-            column_score = max_column + 25
+            column_score = DA_INDEX + 14
 
         column_miss = column_score + 7
 
@@ -76,33 +86,3 @@ def write_data(max_column, sheet):
         for d in data.get('missed'):
             sheet.cell(row=row_num, column=column_miss).value = d
             column_miss += 1
-
-
-def run(file_path):
-    wb = load_workbook(file_path)
-    sheets = wb.worksheets
-    team_from_columns = [3, 4]
-
-    all_sheets_count = len(sheets)
-    counter = 1
-
-    for sheet in sheets:
-        print("Processed sheet - %s, from %s" % (counter, all_sheets_count))
-
-        check_sheet = check_headers(sheet)
-        max_column = sheet.max_column
-
-        if not check_sheet:
-            prepare_sheet(sheet, max_column)
-        elif check_sheet:
-            max_column = max_column - 38
-
-        for row_num in range(sheet.max_row, 1, -1):
-            for team in team_from_columns:
-                take_data(sheet, row_num, team)
-
-        write_data(max_column, sheet)
-        SHEET_DATA.clear()
-        counter += 1
-
-    wb.save(file_path)
