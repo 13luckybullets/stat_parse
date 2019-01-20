@@ -35,7 +35,6 @@ class Example(QMainWindow):
         file_path = QFileDialog.getOpenFileName(self, 'Open file', '/thome')[0]
         wb = load_workbook(file_path)
         sheets = wb.worksheets
-        team_from_columns = [3, 4]
 
         all_sheets_count = len(sheets)
         counter = 1
@@ -52,8 +51,7 @@ class Example(QMainWindow):
                 prepare_sheet(sheet)
 
             for row_num in range(sheet.max_row, 1, -1):
-                for team in team_from_columns:
-                    take_data(sheet, row_num, team)
+                take_data(sheet, row_num)
 
             write_data(sheet)
             SHEET_DATA.clear()

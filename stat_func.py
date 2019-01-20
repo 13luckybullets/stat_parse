@@ -26,27 +26,22 @@ def prepare_sheet(sheet):
             column += 1
 
 
-def take_data(sheet, row_num, team):
-    name = sheet.cell(row=row_num, column=team).value
+def get_by_teams(sheet, row_num, name):
     data = {'score': [], 'missed': []}
-    first = True
 
     for j in range(row_num, 1, -1):
-        if name == sheet.cell(row=j, column=3).value and first:
-            first = False
-            continue
-
         if name == sheet.cell(row=j, column=3).value:
             data['score'].append(sheet.cell(row=j, column=5).value)
             data['missed'].append(sheet.cell(row=j, column=6).value)
-
         elif name == sheet.cell(row=j, column=4).value:
             data['score'].append(sheet.cell(row=j, column=6).value)
             data['missed'].append(sheet.cell(row=j, column=5).value)
-
         elif len(data['score']) == 7:
             break
+    return data
 
+
+def update_sheet_data(row_num, team, data):
     if data and data['score']:
         if len(data['score']) >= 7 or len(data['missed']) >= 7:
             data['score'] = data['score'][:7]
@@ -55,6 +50,17 @@ def take_data(sheet, row_num, team):
         SHEET_DATA.update({
             tuple((row_num, team)): data
         })
+
+
+def take_data(sheet, row_num):
+    name_home = sheet.cell(row=row_num, column=3).value
+    name_guest = sheet.cell(row=row_num, column=4).value
+
+    data_home = get_by_teams(sheet, row_num-1, name_home)
+    data_guest = get_by_teams(sheet, row_num-1, name_guest)
+
+    update_sheet_data(row_num, 3, data_home)
+    update_sheet_data(row_num, 4, data_guest)
 
 
 def set_border(sheet, row_num, column):
