@@ -2,3 +2,6 @@
 .idea
 __pycache__/
 main_window.spec
+build/
+dist/
+run_stat_pars.spec
