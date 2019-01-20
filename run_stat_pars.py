@@ -58,7 +58,6 @@ class Example(QMainWindow):
             write_data(sheet)
             SHEET_DATA.clear()
             counter += 1
-            break
 
         wb.save(file_path)
         self.textEdit.append("Successfully processed")

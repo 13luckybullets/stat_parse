@@ -5,9 +5,6 @@ from openpyxl.utils import column_index_from_string
 from openpyxl.styles.borders import Border, Side
 
 
-# FILE_PATH = r'/home/user/work/odoo12/repositories/all-euro-data-2018-2019.xlsx'
-
-#FILE_PATH = r'D:\py_projects\serega\test.xlsx'
 SHEET_DATA = {}
 COLUMN_NAMES = ['H_S', 'H_M', 'A_S', 'A_M']
 DA_INDEX = column_index_from_string('DA')
@@ -35,9 +32,9 @@ def take_data(sheet, row_num, team):
     first = True
 
     for j in range(row_num, 1, -1):
-        # if name == sheet.cell(row=j, column=3).value and first:
-        #     first = False
-        #     continue
+        if name == sheet.cell(row=j, column=3).value and first:
+            first = False
+            continue
 
         if name == sheet.cell(row=j, column=3).value:
             data['score'].append(sheet.cell(row=j, column=5).value)
@@ -48,12 +45,13 @@ def take_data(sheet, row_num, team):
             data['missed'].append(sheet.cell(row=j, column=5).value)
 
         elif len(data['score']) == 7:
-            SHEET_DATA.update({
-                tuple((row_num, team)): data
-            })
             break
 
-    if data['score']:
+    if data and data['score']:
+        if len(data['score']) >= 7 or len(data['missed']) >= 7:
+            data['score'] = data['score'][:7]
+            data['missed'] = data['missed'][:7]
+
         SHEET_DATA.update({
             tuple((row_num, team)): data
         })
